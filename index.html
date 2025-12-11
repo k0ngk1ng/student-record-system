@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Records Management System</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        const { User, BookOpen, Calendar, Heart, Trophy, Plus, Edit2, Trash2, Save, X } = lucide;
+
+        const StudentRecordsSystem = () => {
+          const [activeTab, setActiveTab] = useState('academic');
+          const [students, setStudents] = useState([
+            {
+              id: 1,
+              name: 'Maria Santos',
+              studentId: 'STU-2024-001',
+              grade: '10',
+              section: 'A'
+            }
+          ]);
+          const [selectedStudent, setSelectedStudent] = useState(students[0]);
+          
+          const [grades, setGrades] = useState([
+            { id: 1, subject: 'Mathematics', grade: 'A', term: 'Q1', year: '2024' },
+            { id: 2, subject: 'Science', grade: 'B+', term: 'Q1', year: '2024' }
+          ]);
+          
+          const [attendance, setAttendance] = useState([
+            { id: 1, date: '2024-12-10', status: 'Present', remarks: '' },
+            { id: 2, date: '2024-12-09', status: 'Present', remarks: '' },
+            { id: 3, date: '2024-12-06', status: 'Absent', remarks: 'Sick' }
+          ]);
+          
+          const [healthInfo, setHealthInfo] = useState({
+            allergies: ['Peanuts', 'Dust'],
+            conditions: ['Asthma'],
+            history: [
+              { id: 1, type: 'Illness', description: 'Flu', date: '2024-11-15' },
+              { id: 2, type: 'Injury', description: 'Sprained ankle', date: '2024-10-20' }
+            ]
+          });
+          
+          const [activities, setActivities] = useState([
+            { id: 1, activity: 'Basketball Team', type: 'Sports', role: 'Player' },
+            { id: 2, activity: 'Debate Club', type: 'Academic', role: 'Member' },
+            { id: 3, activity: 'Photography', type: 'Hobby', role: '' }
+          ]);
+          
+          const [isAddingGrade, setIsAddingGrade] = useState(false);
+          const [isAddingAttendance, setIsAddingAttendance] = useState(false);
+          const [isAddingActivity, setIsAddingActivity] = useState(false);
+          const [isAddingHealth, setIsAddingHealth] = useState(false);
+          
+          const [newGrade, setNewGrade] = useState({ subject: '', grade: '', term: '', year: '2024' });
+          const [newAttendance, setNewAttendance] = useState({ date: '', status: 'Present', remarks: '' });
+          const [newActivity, setNewActivity] = useState({ activity: '', type: '', role: '' });
+          const [newHealthItem, setNewHealthItem] = useState({ type: 'Illness', description: '', date: '' });
+          const [newAllergy, setNewAllergy] = useState('');
+          const [newCondition, setNewCondition] = useState('');
+          
+          const addGrade = () => {
+            if (newGrade.subject && newGrade.grade) {
+              setGrades([...grades, { ...newGrade, id: Date.now() }]);
+              setNewGrade({ subject: '', grade: '', term: '', year: '2024' });
+              setIsAddingGrade(false);
+            }
+          };
+          
+          const addAttendance = () => {
+            if (newAttendance.date) {
+              setAttendance([...attendance, { ...newAttendance, id: Date.now() }]);
+              setNewAttendance({ date: '', status: 'Present', remarks: '' });
+              setIsAddingAttendance(false);
+            }
+          };
+          
+          const addActivity = () => {
+            if (newActivity.activity) {
+              setActivities([...activities, { ...newActivity, id: Date.now() }]);
+              setNewActivity({ activity: '', type: '', role: '' });
+              setIsAddingActivity(false);
+            }
+          };
+          
+          const addHealthHistory = () => {
+            if (newHealthItem.description) {
+              setHealthInfo({
+                ...healthInfo,
+                history: [...healthInfo.history, { ...newHealthItem, id: Date.now() }]
+              });
+              setNewHealthItem({ type: 'Illness', description: '', date: '' });
+              setIsAddingHealth(false);
+            }
+          };
+          
+          const addAllergy = () => {
+            if (newAllergy.trim()) {
+              setHealthInfo({
+                ...healthInfo,
+                allergies: [...healthInfo.allergies, newAllergy.trim()]
+              });
+              setNewAllergy('');
+            }
+          };
+          
+          const addCondition = () => {
+            if (newCondition.trim()) {
+              setHealthInfo({
+                ...healthInfo,
+                conditions: [...healthInfo.conditions, newCondition.trim()]
+              });
+              setNewCondition('');
+            }
+          };
+          
+          const deleteGrade = (id) => setGrades(grades.filter(g => g.id !== id));
+          const deleteAttendance = (id) => setAttendance(attendance.filter(a => a.id !== id));
+          const deleteActivity = (id) => setActivities(activities.filter(a => a.id !== id));
+          const deleteHealthHistory = (id) => setHealthInfo({
+            ...healthInfo,
+            history: healthInfo.history.filter(h => h.id !== id)
+          });
+          const deleteAllergy = (index) => setHealthInfo({
+            ...healthInfo,
+            allergies: healthInfo.allergies.filter((_, i) => i !== index)
+          });
+          const deleteCondition = (index) => setHealthInfo({
+            ...healthInfo,
+            conditions: healthInfo.conditions.filter((_, i) => i !== index)
+          });
+          
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+              <header className="bg-white shadow-md">
+                <div className="max-w-7xl mx-auto px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h1 className="text-3xl font-bold text-indigo-600">Student Records Management</h1>
+                      <p className="text-gray-600 text-sm mt-1">Comprehensive student information system</p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-indigo-50 px-4 py-2 rounded-lg">
+                      <User className="text-indigo-600" size={24} />
+                      <div>
+                        <p className="font-semibold text-gray-800">{selectedStudent.name}</p>
+                        <p className="text-sm text-gray-600">{selectedStudent.studentId} | Grade {selectedStudent.grade}-{selectedStudent.section}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </header>
+              
+              <div className="bg-white border-b shadow-sm">
+                <div className="max-w-7xl mx-auto px-6">
+                  <nav className="flex gap-1">
+                    {[
+                      { id: 'academic', label: 'Academic Records', icon: BookOpen },
+                      { id: 'attendance', label: 'Attendance', icon: Calendar },
+                      { id: 'health', label: 'Health Information', icon: Heart },
+                      { id: 'activities', label: 'Extracurricular', icon: Trophy }
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
+                          activeTab === tab.id
+                            ? 'text-indigo-600 border-b-2 border-indigo-600'
+                            : 'text-gray-600 hover:text-indigo-500'
+                        }`}
+                      >
+                        <tab.icon size={20} />
+                        {tab.label}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+              
+              <main className="max-w-7xl mx-auto px-6 py-8">
+                {activeTab === 'academic' && (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold text-gray-800">Grade Records</h2>
+                      <button
+                        onClick={() => setIsAddingGrade(!isAddingGrade)}
+                        className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                      >
+                        {isAddingGrade ? <X size={20} /> : <Plus size={20} />}
+                        {isAddingGrade ? 'Cancel' : 'Add Grade'}
+                      </button>
+                    </div>
+                    
+                    {isAddingGrade && (
+                      <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                        <div className="grid grid-cols-4 gap-4">
+                          <input
+                            type="text"
+                            placeholder="Subject"
+                            value={newGrade.subject}
+                            onChange={(e) => setNewGrade({ ...newGrade, subject: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Grade (e.g., A, B+)"
+                            value={newGrade.grade}
+                            onChange={(e) => setNewGrade({ ...newGrade, grade: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Term (e.g., Q1)"
+                            value={newGrade.term}
+                            onChange={(e) => setNewGrade({ ...newGrade, term: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Year"
+                            value={newGrade.year}
+                            onChange={(e) => setNewGrade({ ...newGrade, year: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                        </div>
+                        <button
+                          onClick={addGrade}
+                          className="mt-3 flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          <Save size={18} />
+                          Save Grade
+                        </button>
+                      </div>
+                    )}
+                    
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Subject</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Grade</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Term</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Year</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {grades.map(grade => (
+                            <tr key={grade.id} className="border-t hover:bg-gray-50">
+                              <td className="px-4 py-3 text-gray-800">{grade.subject}</td>
+                              <td className="px-4 py-3">
+                                <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                  {grade.grade}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-gray-600">{grade.term}</td>
+                              <td className="px-4 py-3 text-gray-600">{grade.year}</td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() => deleteGrade(grade.id)}
+                                  className="text-red-600 hover:text-red-800 transition"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'attendance' && (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold text-gray-800">Attendance Records</h2>
+                      <button
+                        onClick={() => setIsAddingAttendance(!isAddingAttendance)}
+                        className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                      >
+                        {isAddingAttendance ? <X size={20} /> : <Plus size={20} />}
+                        {isAddingAttendance ? 'Cancel' : 'Add Record'}
+                      </button>
+                    </div>
+                    
+                    {isAddingAttendance && (
+                      <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                        <div className="grid grid-cols-3 gap-4">
+                          <input
+                            type="date"
+                            value={newAttendance.date}
+                            onChange={(e) => setNewAttendance({ ...newAttendance, date: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                          <select
+                            value={newAttendance.status}
+                            onChange={(e) => setNewAttendance({ ...newAttendance, status: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          >
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Late">Late</option>
+                            <option value="Excused">Excused</option>
+                          </select>
+                          <input
+                            type="text"
+                            placeholder="Remarks"
+                            value={newAttendance.remarks}
+                            onChange={(e) => setNewAttendance({ ...newAttendance, remarks: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                        </div>
+                        <button
+                          onClick={addAttendance}
+                          className="mt-3 flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          <Save size={18} />
+                          Save Record
+                        </button>
+                      </div>
+                    )}
+                    
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {attendance.map(record => (
+                            <tr key={record.id} className="border-t hover:bg-gray-50">
+                              <td className="px-4 py-3 text-gray-800">{record.date}</td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                                  record.status === 'Present' ? 'bg-green-100 text-green-800' :
+                                  record.status === 'Absent' ? 'bg-red-100 text-red-800' :
+                                  record.status === 'Late' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {record.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-gray-600">{record.remarks || '-'}</td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() => deleteAttendance(record.id)}
+                                  className="text-red-600 hover:text-red-800 transition"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'health' && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                      <h2 className="text-2xl font-bold text-gray-800 mb-4">Allergies</h2>
+                      <div className="flex gap-2 mb-4">
+                        <input
+                          type="text"
+                          placeholder="Add new allergy"
+                          value={newAllergy}
+                          onChange={(e) => setNewAllergy(e.target.value)}
+                          className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        />
+                        <button
+                          onClick={addAllergy}
+                          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {healthInfo.allergies.map((allergy, index) => (
+                          <span key={index} className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full">
+                            {allergy}
+                            <button onClick={() => deleteAllergy(index)} className="hover:text-red-900">
+                              <X size={16} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                      <h2 className="text-2xl font-bold text-gray-800 mb-4">Chronic Medical Conditions</h2>
+                      <div className="flex gap-2 mb-4">
+                        <input
+                          type="text"
+                          placeholder="Add new condition"
+                          value={newCondition}
+                          onChange={(e) => setNewCondition(e.target.value)}
+                          className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        />
+                        <button
+                          onClick={addCondition}
+                          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {healthInfo.conditions.map((condition, index) => (
+                          <span key={index} className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-3 py-1 rounded-full">
+                            {condition}
+                            <button onClick={() => deleteCondition(index)} className="hover:text-orange-900">
+                              <X size={16} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-gray-800">Medical History (Illnesses, Surgeries, Injuries)</h2>
+                        <button
+                          onClick={() => setIsAddingHealth(!isAddingHealth)}
+                          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          {isAddingHealth ? <X size={20} /> : <Plus size={20} />}
+                          {isAddingHealth ? 'Cancel' : 'Add Record'}
+                        </button>
+                      </div>
+                      
+                      {isAddingHealth && (
+                        <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                          <div className="grid grid-cols-3 gap-4">
+                            <select
+                              value={newHealthItem.type}
+                              onChange={(e) => setNewHealthItem({ ...newHealthItem, type: e.target.value })}
+                              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            >
+                              <option value="Illness">Illness</option>
+                              <option value="Surgery">Surgery</option>
+                              <option value="Injury">Injury</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Description"
+                              value={newHealthItem.description}
+                              onChange={(e) => setNewHealthItem({ ...newHealthItem, description: e.target.value })}
+                              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+                            <input
+                              type="date"
+                              value={newHealthItem.date}
+                              onChange={(e) => setNewHealthItem({ ...newHealthItem, date: e.target.value })}
+                              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+                          </div>
+                          <button
+                            onClick={addHealthHistory}
+                            className="mt-3 flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                          >
+                            <Save size={18} />
+                            Save Record
+                          </button>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-3">
+                        {healthInfo.history.map(record => (
+                          <div key={record.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                            <div>
+                              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mr-3 ${
+                                record.type === 'Illness' ? 'bg-purple-100 text-purple-800' :
+                                record.type === 'Surgery' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {record.type}
+                              </span>
+                              <span className="text-gray-800 font-medium">{record.description}</span>
+                              <span className="text-gray-600 text-sm ml-3">{record.date}</span>
+                            </div>
+                            <button
+                              onClick={() => deleteHealthHistory(record.id)}
+                              className="text-red-600 hover:text-red-800 transition"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'activities' && (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold text-gray-800">Extracurricular Activities & Interests</h2>
+                      <button
+                        onClick={() => setIsAddingActivity(!isAddingActivity)}
+                        className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                      >
+                        {isAddingActivity ? <X size={20} /> : <Plus size={20} />}
+                        {isAddingActivity ? 'Cancel' : 'Add Activity'}
+                      </button>
+                    </div>
+                    
+                    {isAddingActivity && (
+                      <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                        <div className="grid grid-cols-3 gap-4">
+                          <input
+                            type="text"
+                            placeholder="Activity/Interest"
+                            value={newActivity.activity}
+                            onChange={(e) => setNewActivity({ ...newActivity, activity: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                          <select
+                            value={newActivity.type}
+                            onChange={(e) => setNewActivity({ ...newActivity, type: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          >
+                            <option value="">Select Type</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Academic">Academic</option>
+                            <option value="Arts">Arts</option>
+                            <option value="Music">Music</option>
+                            <option value="Hobby">Hobby</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          <input
+                            type="text"
+                            placeholder="Role (optional)"
+                            value={newActivity.role}
+                            onChange={(e) => setNewActivity({ ...newActivity, role: e.target.value })}
+                            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                          />
+                        </div>
+                        <button
+                          onClick={addActivity}
+                          className="mt-3 flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                        >
+                          <Save size={18} />
+                          Save Activity
+                        </button>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {activities.map(activity => (
+                        <div key={activity.id} className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-800">{activity.activity}</h3>
+                              <span className="inline-block mt-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                                {activity.type}
+                              </span>
+                              {activity.role && (
+                                <p className="text-gray-600 mt-2">Role: {activity.role}</p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => deleteActivity(activity.id)}
+                              className="text-red-600 hover:text-red-800 transition"
+                            >
+                              <Trash2 size={18}
+                                 const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<StudentRecordsSystem />);
+</script>
